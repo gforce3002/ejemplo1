@@ -15,7 +15,7 @@
       <b-card class="my-2" v-for="tarea in tareas" :key="tarea.id">
           <b-card-text>
             {{tarea.nombre}}
-            <b-button variant="warning">Editar</b-button>
+            <b-button variant="warning" :to="`/vuex/${tarea.id}`">Editar</b-button>
             <b-button variant="danger" @click="eliminarTarea(tarea)">Eliminar</b-button>
           </b-card-text>
       </b-card>

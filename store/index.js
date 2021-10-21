@@ -1,6 +1,7 @@
 import {db} from '../plugins/firebase'
 export const state = ()=>({
-    tareas:''
+    tareas:'',
+    tarea:''
 })
 
 export const mutations = {
@@ -12,18 +13,28 @@ export const mutations = {
     },
     removeTarea(state, payload){
         state.tareas = state.tareas.filter( e => e.id != payload.id)
+    },
+    updateTarea(state, payload){
+        const index = state.tareas.findIndex(e => e.id === payload.id)
+        state.tareas[index].nombre = payload.nombre
+    },
+    getOneTarea(state, payload){
+        state.tarea = payload
     }
 
 }
 
 export const actions = {
+    /**Esta funcion solo se ejecuta cuando se inicia por 
+     * primera vez la app
+     */
     nuxtServerInit({commit}, {req}){
        
         return  db.collection('tareas').get()
         .then(query=>{
           const tareas = []
           query.forEach(element => {
-            console.log(element)  
+            
             let tarea = element.data()
             tarea.id = element.id
             tareas.push(tarea)
@@ -49,13 +60,35 @@ export const actions = {
     },
     async eliminarTarea({commit}, payload){
         try {
-            db.collection('tareas').doc(payload.id).delete()
+            await db.collection('tareas').doc(payload.id).delete()
                 .then(e=>{
                     console.log("Tarea eliminada")
                     commit('removeTarea',payload)
                 })
         } catch (error) {
-            
+            console.log(error)
+        }
+    },
+    async editarTarea({commit}, payload){
+        console.log(payload)
+        try {
+            await db.collection('tareas').doc(payload.id).update({
+                nombre: payload.nombre
+            }).then(()=>{
+                console.log("Tarea editada")
+                commit('updateTarea',payload)
+                this.app.router.push('/vuex')
+            })
+
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    async getOneTarea({commit},payload){
+        try {
+            const resp = await db.collection('tareas').doc() 
+        } catch (error) {
+            console.log(error)
         }
     }
 }
